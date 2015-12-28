@@ -1,32 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    android:theme="@style/AppTheme">
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/songCurrentDurationLabel"
-        android:layout_row="6"
-        android:layout_column="10" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <ImageView
+            android:layout_width="256dp"
+            android:layout_height="256dp"
+            android:id="@+id/imageView"
+            android:layout_gravity="center"
+            android:background="@drawable/logo"
+            android:contentDescription="@string/content" />
+    </FrameLayout>
 
-    <jp.co.recruit_lifestyle.android.widget.PlayPauseButton
-        android:layout_width="100dp"
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_centerInParent="true"
-        android:id="@+id/main_play_pause_button"
-        android:layout_row="6"
-        android:layout_column="11" />
+        android:baselineAligned="false">
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|right"
+                android:text="@string/carregando"
+                android:id="@+id/songCurrentDurationLabel" />
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+            <br.com.lpn.radiolpn.MainButton
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:id="@+id/main_play_pause_button" />
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sincronizar"
+                android:layout_gravity="center_vertical|left"
+                android:id="@+id/sync_button"
+                android:textStyle="bold" />
+        </FrameLayout>
+    </LinearLayout>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Button"
-        android:id="@+id/sync_button"
-        android:layout_row="6"
-        android:layout_column="12" />
-</GridLayout>
+
+</LinearLayout>

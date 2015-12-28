@@ -1,7 +1,13 @@
 package br.com.lpn.radiolpn;
 
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.os.SystemClock;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,7 +18,6 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -25,20 +30,20 @@ import com.parse.ParseQuery;
 
 import jp.co.recruit_lifestyle.android.widget.PlayPauseButton;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
-    private Handler mHandler = new Handler();;
-    private ImageButton btnPlay;
+    private Handler mHandler = new Handler();
     private TextView songCurrentDurationLabel;
-    private  MediaPlayer mp;
-    private PlayPauseButton playPauseButton;
-    private Button syncButton;
+    private MediaPlayer mp;
+    private MainButton playPauseButton;
     private boolean isPaused = false;
+
+    private final static String MSG_ALERTA = "Por favor, verifique sua conexão com a internet e clique no botão Sincronizar para atualizar sua musica";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(br.com.lpn.radiolpn.R.layout.activity_main);
+        setContentView(R.layout.activity_main);
 
         initParse();
         initComponents();
@@ -46,11 +51,37 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_about) {
+            showAlert("Sobre", "Aplicativo criado pela Luz para as Nações", "Fechar");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     public void initComponents(){
 
-        playPauseButton = (PlayPauseButton) findViewById(R.id.main_play_pause_button);
-        syncButton = (Button) findViewById(R.id.sync_button);
+        playPauseButton = (MainButton) findViewById(R.id.main_play_pause_button);
+        Button syncButton = (Button) findViewById(R.id.sync_button);
+        playPauseButton.setColor(Color.rgb(0, 184, 245));
+        playPauseButton.setActive(false);
+
 
         playPauseButton.setOnControlStatusChangeListener(new PlayPauseButton.OnControlStatusChangeListener() {
             @Override
@@ -59,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     if (isPaused) {
                         mp.start();
                     } else {
+                        playPauseButton.setActive(false);
                         mp.prepareAsync();
                     }
                 } else {
@@ -68,9 +100,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         syncButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (playPauseButton.isPlayed()) {
+                    // Obtain MotionEvent object
+                    long downTime = SystemClock.uptimeMillis();
+                    long eventTime = SystemClock.uptimeMillis() + 100;
+                    float x = 0.0f;
+                    float y = 0.0f;
+                    // List of meta states found here: developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
+                    int metaState = 0;
+                    MotionEvent motionEvent = MotionEvent.obtain(
+                            downTime,
+                            eventTime,
+                            MotionEvent.ACTION_DOWN,
+                            x,
+                            y,
+                            metaState
+                    );
+
+                    // Dispatch touch event to view
+                    playPauseButton.dispatchTouchEvent(motionEvent);
+                }
+                playPauseButton.setActive(false);
+                isPaused = false;
                 initParse();
             }
         });
@@ -79,68 +135,60 @@ public class MainActivity extends AppCompatActivity {
 
         songCurrentDurationLabel = (TextView) findViewById(R.id.songCurrentDurationLabel);
 
-
-
-//        Button botao = (Button) findViewById(R.id.btnSync);
- //       botao.setOnClickListener(new View.OnClickListener() {
-//           @Override
- //           public void onClick(View arg0) {
-//
-//                btnPlay.setImageResource(R.drawable.btn_play);
-//                prepareData();
-//
-//            }
-//        });
-
-
     }
 
     public void initParse(){
-        ParseAnalytics.trackAppOpenedInBackground(getIntent());
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("Properties");
-        query.whereEqualTo("key", "radioURL");
-        query.getFirstInBackground(new GetCallback<ParseObject>() {
-            public void done(ParseObject properties, ParseException e) {
-                if (e == null) {
-                    prepareData(properties.getString("value"));
+        if (isOnline()) {
+            ParseAnalytics.trackAppOpenedInBackground(getIntent());
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Properties");
+            query.whereEqualTo("key", "radioURL");
+            query.getFirstInBackground(new GetCallback<ParseObject>() {
+                public void done(ParseObject properties, ParseException e) {
+                    if (e == null) {
+                        prepareData(properties.getString("value"));
 
-                } else {
-                    showToast("Por favor, verifique sua conexão com a internet e clique no botão Sync para atualizar sua musica");
+                    } else {
+                        showToast(MSG_ALERTA);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void prepareData(String url){
 
         try{
-            if ( isOnline()  ) {
+            mp = new MediaPlayer();
 
-                mp = new MediaPlayer();
+            mp.setDataSource(url);
 
-                mp.setDataSource(url);
+            mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mp.start();
+                    playPauseButton.setActive(true);
+                }
+            });
+            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    showToast(MSG_ALERTA);
+                }
+            });
 
-                mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    public void onPrepared(MediaPlayer mp) {
-                        mp.start();
-                    }
-                });
+            mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    showToast(MSG_ALERTA);
+                    return true;
+                }
+            });
 
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            mHandler.postDelayed(mUpdateTimeTask, 100);
 
-                    @Override
-                    public void onCompletion(MediaPlayer mp) {
-                        showToast("Por favor, verifique sua conexão com a internet e clique no botão Sync para atualizar sua musica");
-                    }
-                });
-                mHandler.postDelayed(mUpdateTimeTask, 100);
+            playPauseButton.setActive(true);
 
-            }
-
-
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -155,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {
             return true;
         }
-        showToast("Por favor, verifique sua conexão com a internet e clique no botão Sync para atualizar sua musica");
+        showToast(MSG_ALERTA);
         return false;
     }
 
@@ -200,6 +248,21 @@ public class MainActivity extends AppCompatActivity {
 
         Toast toast = Toast.makeText(context, message, duration);
         toast.show();
+    }
+
+    private void showAlert(String title, String text, String buttonText){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(text);
+        builder.setNeutralButton(buttonText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+
     }
 
 

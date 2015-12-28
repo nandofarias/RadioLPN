@@ -5,8 +5,12 @@
         <!--   your app branding color for the app bar -->
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <!--   darker variant for the status bar and contextual app bars -->
-        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimary</item>
         <!--   theme UI controls like checkboxes and text fields -->
         <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/colorWindowBackground</item>
+        <item name="windowActionBar">true</item>
+        <item name="android:windowNoTitle">false</item>
+
     </style>
 </resources>
