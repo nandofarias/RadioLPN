@@ -73,7 +73,10 @@ public class MainActivity extends Activity {
         //noinspection SimplifiableIfStatement
         switch (id){
             case R.id.action_about:
-                showAlert("Sobre", "Aplicativo criado pela Luz para as Nações", "Fechar");
+                showAlert("Sobre", "Versão 2.0\n" +
+                        "Aplicativo desenvolvido pelo Ministerio de TI Luz Para As Nações\n" +
+                        "RadioLPN se encontra disponivel também pelo site www.lpn12.com.br\n" +
+                        "Visite também o blog do nosso apostolo www.apostologerson.com", "Fechar");
                 return true;
             case R.id.exit:
                 finish();
