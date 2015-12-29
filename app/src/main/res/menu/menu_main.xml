@@ -3,4 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/action_about" android:title="@string/action_about"
         android:orderInCategory="1" app:showAsAction="always"/>
+
+    <item android:id="@+id/exit" android:title="@string/exit"
+        android:orderInCategory="1" app:showAsAction="always"/>
 </menu>

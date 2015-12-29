@@ -1,7 +1,12 @@
 package br.com.lpn.radiolpn;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -66,10 +71,15 @@ public class MainActivity extends Activity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_about) {
-            showAlert("Sobre", "Aplicativo criado pela Luz para as Nações", "Fechar");
-            return true;
+        switch (id){
+            case R.id.action_about:
+                showAlert("Sobre", "Aplicativo criado pela Luz para as Nações", "Fechar");
+                return true;
+            case R.id.exit:
+                finish();
+                System.exit(0);
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -188,9 +198,7 @@ public class MainActivity extends Activity {
 
             playPauseButton.setActive(true);
 
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (IllegalArgumentException | IllegalStateException | IOException e) {
             e.printStackTrace();
         }
 
@@ -210,7 +218,7 @@ public class MainActivity extends Activity {
 
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
-            long currentDuration = 0;
+            long currentDuration;
             currentDuration = mp.getCurrentPosition();
             songCurrentDurationLabel.setText(""+milliSecondsToTimer(currentDuration));
 
@@ -219,7 +227,7 @@ public class MainActivity extends Activity {
     };
     public String milliSecondsToTimer(long milliseconds){
         String finalTimerString = "";
-        String secondsString = "";
+        String secondsString;
 
         // Convert total duration into time
         int hours = (int)( milliseconds / (1000*60*60));
@@ -265,6 +273,30 @@ public class MainActivity extends Activity {
 
     }
 
+    private void createNotification(){
+
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addCategory(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification n  = new Notification.Builder(this)
+                .setContentTitle("RadioLPN")
+                .setContentText("Aplicativo rodando em background, clique aqui para abrir.")
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
+                .setSmallIcon(R.drawable.smallicon)
+                .setColor(Color.rgb(0, 184, 245))
+                .setContentIntent(pIntent)
+                .setAutoCancel(true).build();
+
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0, n);
+    }
+
+
 
     @Override
     public void onDestroy(){
@@ -277,6 +309,7 @@ public class MainActivity extends Activity {
     }
     @Override
     public void onPause(){
+        createNotification();
         super.onPause();
     }
 

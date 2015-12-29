@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">RadioLPN</string>
     <string name="action_about">Sobre</string>
+    <string name="exit">Sair</string>
     <string name="sincronizar">Sincronizar</string>
     <string name="carregando">Carregando...</string>
     <string name="parse_app_id">3NLRzYmEyAXA558nuyukBzYUxTPPoKrBB6j3ZCk2</string>

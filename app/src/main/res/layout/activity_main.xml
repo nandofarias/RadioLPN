@@ -11,14 +11,18 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_gravity="center">
         <ImageView
-            android:layout_width="256dp"
-            android:layout_height="256dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:adjustViewBounds="true"
             android:id="@+id/imageView"
+            android:scaleType="centerCrop"
             android:layout_gravity="center"
-            android:background="@drawable/logo"
-            android:contentDescription="@string/content" />
+            android:contentDescription="@string/content"
+            android:cropToPadding="false"
+            android:src="@drawable/logo" />
     </FrameLayout>
 
 
@@ -58,6 +62,9 @@
                 android:text="@string/sincronizar"
                 android:layout_gravity="center_vertical|left"
                 android:id="@+id/sync_button"
+                android:background="@drawable/button_border"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:textStyle="bold" />
         </FrameLayout>
     </LinearLayout>
