@@ -1,14 +1,18 @@
 package br.com.lpn.radiolpn;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,22 +20,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Handler;
 import android.widget.Toast;
 
 import java.io.IOException;
-
-import com.parse.GetCallback;
-import com.parse.ParseAnalytics;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import jp.co.recruit_lifestyle.android.widget.PlayPauseButton;
 
@@ -50,9 +41,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initParse();
         initComponents();
-
+        prepareData("http://minha.webradio.srv.br:8288/stream");
 
     }
 
@@ -140,7 +130,7 @@ public class MainActivity extends Activity {
                 }
                 playPauseButton.setActive(false);
                 isPaused = false;
-                initParse();
+                prepareData("http://minha.webradio.srv.br:8288/stream");
             }
         });
 
@@ -150,23 +140,6 @@ public class MainActivity extends Activity {
 
     }
 
-    public void initParse(){
-        if (isOnline()) {
-            ParseAnalytics.trackAppOpenedInBackground(getIntent());
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Properties");
-            query.whereEqualTo("key", "radioURL");
-            query.getFirstInBackground(new GetCallback<ParseObject>() {
-                public void done(ParseObject properties, ParseException e) {
-                    if (e == null) {
-                        prepareData(properties.getString("value"));
-
-                    } else {
-                        showToast(MSG_ALERTA);
-                    }
-                }
-            });
-        }
-    }
 
     public void prepareData(String url){
 
@@ -202,32 +175,26 @@ public class MainActivity extends Activity {
             playPauseButton.setActive(true);
 
         } catch (IllegalArgumentException | IllegalStateException | IOException e) {
-            e.printStackTrace();
+            showToast("Não foi possível carregar sua requisição");
         }
 
     }
 
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-            return true;
-        }
-        showToast(MSG_ALERTA);
-        return false;
+
+    private Runnable mUpdateTimeTask;
+
+    {
+        mUpdateTimeTask = new Runnable() {
+            public void run() {
+                long currentDuration;
+                currentDuration = mp.getCurrentPosition();
+                songCurrentDurationLabel.setText("" + milliSecondsToTimer(currentDuration));
+
+                mHandler.postDelayed(this, 100);
+            }
+        };
     }
 
-
-    private Runnable mUpdateTimeTask = new Runnable() {
-        public void run() {
-            long currentDuration;
-            currentDuration = mp.getCurrentPosition();
-            songCurrentDurationLabel.setText(""+milliSecondsToTimer(currentDuration));
-
-            mHandler.postDelayed(this, 100);
-        }
-    };
     public String milliSecondsToTimer(long milliseconds){
         String finalTimerString = "";
         String secondsString;
