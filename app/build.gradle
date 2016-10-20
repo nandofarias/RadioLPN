@@ -1,24 +1,29 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '21.0.1'
+    compileSdkVersion 25
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
         applicationId "com.radio.lpn"
         minSdkVersion 21
-        targetSdkVersion 21
+        targetSdkVersion 25
         versionCode 3
         versionName "2.1"
     }
     buildTypes {
+        debug {
+            minifyEnabled false
+            shrinkResources false
+        }
         release {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    return null
 }
-
 repositories {
     maven {
         url "https://jitpack.io"
@@ -27,7 +32,7 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22.0.+'
-    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:appcompat-v7:25.0.0'
+    compile 'com.android.support:design:25.0.0'
     compile 'com.github.recruit-lifestyle:PlayPauseButton:1.0'
 }

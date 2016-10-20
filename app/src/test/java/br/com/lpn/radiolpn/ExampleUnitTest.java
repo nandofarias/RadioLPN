@@ -1,4 +1,4 @@
-package com.com.lpn.radiolpn;
+package br.com.lpn.radiolpn;
 
 import org.junit.Test;
 
