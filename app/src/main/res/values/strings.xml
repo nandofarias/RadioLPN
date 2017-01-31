@@ -7,4 +7,5 @@
     <string name="parse_app_id">3NLRzYmEyAXA558nuyukBzYUxTPPoKrBB6j3ZCk2</string>
     <string name="parse_client_key">VpYJQ9CfWvaYLZpayUSDrez38Fm0dPCU5irSnK6F</string>
     <string name="content">RadioLPN</string>
+    <string name="msg_alert">Por favor, verifique sua conexão com a internet e clique no botão Sincronizar para atualizar sua musica</string>
 </resources>

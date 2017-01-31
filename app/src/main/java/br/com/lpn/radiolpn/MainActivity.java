@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -34,7 +35,6 @@ public class MainActivity extends Activity {
     private MainButton playPauseButton;
     private boolean isPaused = false;
 
-    private final static String MSG_ALERTA = "Por favor, verifique sua conexão com a internet e clique no botão Sincronizar para atualizar sua musica";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,7 +142,7 @@ public class MainActivity extends Activity {
 
 
     public void prepareData(String url){
-
+        final Resources res = getResources();
         try{
             mp = new MediaPlayer();
 
@@ -158,14 +158,14 @@ public class MainActivity extends Activity {
             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
-                    showToast(MSG_ALERTA);
+                    showToast(res.getString(R.string.msg_alert));
                 }
             });
 
             mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mp, int what, int extra) {
-                    showToast(MSG_ALERTA);
+                    showToast(res.getString(R.string.msg_alert));
                     return true;
                 }
             });
@@ -188,7 +188,8 @@ public class MainActivity extends Activity {
             public void run() {
                 long currentDuration;
                 currentDuration = mp.getCurrentPosition();
-                songCurrentDurationLabel.setText("" + milliSecondsToTimer(currentDuration));
+                String currentDurationInTimer = milliSecondsToTimer(currentDuration);
+                songCurrentDurationLabel.setText(currentDurationInTimer);
 
                 mHandler.postDelayed(this, 100);
             }
